@@ -51,26 +51,37 @@ import { getFirebaseConfig } from './firebase-config.js';
 async function signIn() {
   alert('TODO: Implement Google Sign-In');
   // TODO 1: Sign in Firebase with credential from the Google user.
+  var provider = new GoogleAuthProvider();
+  await signInWithPopup(getAuth(), provider);
 }
 
 // Signs-out of Friendly Chat.
 function signOutUser() {
   // TODO 2: Sign out of Firebase.
+  signOut(getAuth());
 }
 
 // Initiate firebase auth
 function initFirebaseAuth() {
   // TODO 3: Subscribe to the user's signed-in status
+  onAuthStateChanged(getAuth(), authStateObserver);
 }
 
 // Returns the signed-in user's profile Pic URL.
 function getProfilePicUrl() {
+  return getAuth().currentUser.photoURL || '/images/profile_placeholder.png';
   // TODO 4: Return the user's profile pic URL.
+  function getUserName() {
+    return getAuth().currentUser.displayName;
+  }
 }
 
 // Returns the signed-in user's display name.
 function getUserName() {
   // TODO 5: Return the user's display name.
+  function isUserSignedIn() {
+    return !!getAuth().currentUser;
+  }
 }
 
 // Returns true if a user is signed-in.
@@ -102,6 +113,17 @@ async function saveMessagingDeviceToken() {
 // Requests permissions to show notifications.
 async function requestNotificationsPermissions() {
   // TODO 11: Request permissions to send notifications.
+  try {
+    await addDoc(collection(getFirestore(), 'messages'), {
+      name: getUserName(),
+      text: messageText,
+      profilePicUrl: getProfilePicUrl(),
+      timestamp: serverTimestamp()
+    });
+  }
+  catch(error) {
+    console.error('Error writing new message to Firebase Database', error);
+  }
 }
 
 // Triggered when a file is selected via the media picker.
@@ -344,6 +366,8 @@ mediaCaptureElement.addEventListener('change', onMediaFileSelected);
 
 const firebaseAppConfig = getFirebaseConfig();
 // TODO 0: Initialize Firebase
+const firebaseAppConfig = getFirebaseConfig();
+initializeApp(firebaseAppConfig);
 
 // TODO 12: Initialize Firebase Performance Monitoring
 
